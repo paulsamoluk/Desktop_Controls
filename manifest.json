@@ -3,7 +3,7 @@
   "id": "psamoluk.desktop-controls",
   "name": "Desktop Controls",
   "version": "1.0.0",
-  "author": "psamoluk",
+  "author": "Paul Samoluk",
   "license": "MIT",
   "description": "Tune Hyprland window appearance from the bar: window opacity (focused/unfocused), corner rounding, gaps, border width, blur, shadows and animations, applied live.",
   "kinds": ["bar-widget", "panel"],
