@@ -1,6 +1,5 @@
 import QtQuick
 import QtQuick.Controls
-import Quickshell
 import Quickshell.Io
 import qs.Ui
 import qs.Commons
@@ -21,7 +20,8 @@ Panel {
   property var hostWidget: null
   readonly property var barIdentity: hostWidget || root
 
-  readonly property color barForeground: bar ? bar.foreground : Color.foreground
+  // `barForeground` comes from the Panel base (it reads bar.barForeground with a
+  // Color.foreground fallback); only the font family needs declaring here.
   readonly property string fontFamily: bar ? bar.fontFamily : Style.font.family
 
   readonly property var opacityRows: Model.byGroup("opacity")

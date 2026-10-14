@@ -27,10 +27,12 @@ plugin ran.
 ## Install
 
 ```bash
-omarchy plugin add https://github.com/paulsamoluk/Desktop_Controls.git
-omarchy plugin enable psamoluk.desktop-controls
+omarchy plugin add https://github.com/paulsamoluk/Desktop_Controls.git --enable
 omarchy bar move psamoluk.desktop-controls --section right
 ```
+
+(It lands in the section its manifest asks for; move it if you'd rather have it
+elsewhere.)
 
 Or by hand: clone into `~/.config/omarchy/plugins/psamoluk.desktop-controls`,
 then `omarchy-shell shell rescanPlugins` and `omarchy plugin enable
@@ -71,14 +73,52 @@ Omarchy 4 (the Lua-config Hyprland, where `hyprctl eval` is the runtime config
 path) on x86_64 or aarch64. Nothing else — the plugin calls `hyprctl` and `sh`
 from the shell, no external packages.
 
+## Dependencies, privileges and safety
+
+Written out because the marketplace asks for it, and because a plugin runs
+unsandboxed inside the long-lived `omarchy-shell` process.
+
+- **External commands:** `hyprctl` (ships with Hyprland) and `sh`, invoked by
+  name. No downloads, no remote builds, no installers, no background services.
+- **Network:** none. The plugin never talks to anything.
+- **Privileges:** none. It runs entirely as your user and never calls `sudo`.
+- **What it writes:** Hyprland's runtime configuration via `hl.config()`, and its
+  own settings inline in your `~/.config/omarchy/shell.json` widget entry through
+  the shell's own API. Nothing else — no files outside the plugin folder, no
+  system paths, no shell rc files.
+- **Install:** `omarchy plugin add` only clones files into
+  `~/.config/omarchy/plugins/<id>/`; the shell never executes plugin code during
+  install, and this plugin declares no hooks or post-install scripts.
+- **State on disk:** `~/.config/omarchy/shell.json` (the widget entry: your tuned
+  values plus a `base*` snapshot for Reset). No other files are created.
+
 ## Remove
 
 ```bash
 omarchy plugin remove psamoluk.desktop-controls
 ```
 
-Removing the bar entry removes the saved values with it, since they live inline
-on that entry.
+That deletes the plugin folder and its bar entry, and because the saved values
+live inline on that entry, they go with it.
+
+One honest caveat: removal does not reach into the compositor and undo a tuning
+that is currently in effect. The values your desktop is using right now stay in
+effect until Hyprland next loads its config (a logout/reboot, or
+`omarchy restart hyprctl`), at which point your `.lua` files take over again. To
+put the compositor back immediately before removing, use **Reset to default**.
+
+## Validate
+
+```bash
+omarchy plugin validate ~/.config/omarchy/plugins/psamoluk.desktop-controls
+qmllint -I "$OMARCHY_PATH/shell" \
+  ~/.config/omarchy/plugins/psamoluk.desktop-controls/{BarWidget,Panel}.qml
+```
+
+Both exit without error. `qs.*` imports are a Quickshell runtime mapping, so
+`qmllint` needs an import root containing a `qs` symlink to `$OMARCHY_PATH/shell`
+to resolve them the way the shell does; without it the module-import warnings
+cascade into false positives on every type.
 
 ## License
 
